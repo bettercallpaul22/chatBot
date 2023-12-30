@@ -1,9 +1,9 @@
 import OngoingOrderModel from "../model/OngoingOrderModel";
 import { calculateTotalAmount } from "../helper/calculate_total";
+import { calculateItemTotalPrice } from "../helper/get_price_total";
 
 import diff, { WebhookClient, Card, Text, Platforms } from 'dialogflow-fulfillment'
 import { Request, Response } from "express";
-import { calculateItemTotalPrice } from "../helper/get_price_total";
 import { item_prices } from "../misc/misc";
 
 export const add_order = async (req: Request, res: Response) => {
@@ -20,9 +20,7 @@ export const add_order = async (req: Request, res: Response) => {
   const quantity_to_add = req.body.queryResult.parameters.number[0]
   const ongoing_order = await OngoingOrderModel.findOne({ session_id: session_string })
   if (ongoing_order) {
-    if (ongoing_order.items.hasOwnProperty(item_to_add)) {
-      console.log("updating new order")
-
+    if (ongoing_order?.items.hasOwnProperty(item_to_add)) {
       ongoing_order.items[item_to_add] = ongoing_order.items[item_to_add] + quantity_to_add;
       const get_item_prices = calculateItemTotalPrice(ongoing_order.items, item_prices)
       const get_total_amount = calculateTotalAmount(get_item_prices)
@@ -37,9 +35,33 @@ export const add_order = async (req: Request, res: Response) => {
         total: ongoing_order.total,
       })
       await order.save()
+
+      const custom_payload = (agent: any, ) => {
+        const payload_data = {
+    
+          "richContent": [
+            [
+              {
+                "type": "description",
+                "title": `Order Update`,
+                "text":[
+                   `${quantity_to_add} ${item_to_add} has been added to your order`,
+                  ]
+                 
+                
+              }
+            ]
+          ]
+        }
+        agent.add(new diff.Payload(agent.UNSPECIFIED, payload_data, { sendAsMessage: true, rawPayload: true }));
+      }
+      let intentMap = new Map();
+      intentMap.set('add_order', custom_payload)
+      agent.handleRequest(intentMap)
+
+
       await OngoingOrderModel.findByIdAndDelete({ _id: ongoing_order._id })
     } else {
-      console.log("adding item")
       ongoing_order.items = { ...ongoing_order.items, [item_to_add]: quantity_to_add }
       const get_item_prices = calculateItemTotalPrice(ongoing_order.items, item_prices)
       const get_total_amount = calculateTotalAmount(get_item_prices)
@@ -53,10 +75,33 @@ export const add_order = async (req: Request, res: Response) => {
         total: ongoing_order.total,
       })
       await order.save()
+
+      const custom_payload = (agent: any, ) => {
+        const payload_data = {
+    
+          "richContent": [
+            [
+              {
+                "type": "description",
+                "title": `Order Update`,
+                "text":[
+                   `${quantity_to_add} ${item_to_add} has been removed to your order`,
+                  ]
+                 
+                
+              }
+            ]
+          ]
+        }
+        agent.add(new diff.Payload(agent.UNSPECIFIED, payload_data, { sendAsMessage: true, rawPayload: true }));
+      }
+      let intentMap = new Map();
+      intentMap.set('add_order', custom_payload)
+      agent.handleRequest(intentMap)
+
       await OngoingOrderModel.findByIdAndDelete({ _id: ongoing_order._id })
     }
   } else {
-    console.log("creating new order")
     const get_item_prices = calculateItemTotalPrice(matchedObject, item_prices)
     const get_total_amount = calculateTotalAmount(get_item_prices)
     const new_ongoing_order = new OngoingOrderModel({
@@ -66,46 +111,22 @@ export const add_order = async (req: Request, res: Response) => {
       total: get_total_amount
     })
     await new_ongoing_order.save()
-  }
+  
 
-
-  // const items: { [key: string]: number } = ongoing_order.items
-  // const prices: { [key: string]: number } = ongoing_order.item_total_price
-
-  // Function to display the receipt
-  // function displayReceipt(items: { [key: string]: number }, prices: { [key: string]: number }): void {
-  // console.log("Receipt:");
-  // console.log("------------------------");
-
-  // Iterate over items
-  // for (const itemName in items) {
-  //   if (items.hasOwnProperty(itemName)) {
-  //     const quantity = items[itemName];
-  //     const itemPrice = prices[itemName];
-  //     const totalPrice = quantity * itemPrice;
-
-  //     console.log(`${itemName} x${quantity}: $${totalPrice.toFixed(2)}`);
-
-
-
-  //     console.log("------------------------");
-
-  //   }
-  // }
-
-  const custom_payload = (agent: any) => {
+  const custom_payload = (agent: any, ) => {
     const payload_data = {
 
       "richContent": [
         [
           {
             "type": "description",
-            "title": "Receipt",
-            "text": [
-              "------------------------",
-              `add order`,
-              "------------------------"
-            ]
+            "title": `Receipt`,
+            "text":[
+               `$Order total price : ${new_ongoing_order.total}`,
+               ` Order Id :${new_ongoing_order._id}`
+              ]
+             
+            
           }
         ]
       ]
@@ -115,10 +136,26 @@ export const add_order = async (req: Request, res: Response) => {
   let intentMap = new Map();
   intentMap.set('add_order', custom_payload)
   agent.handleRequest(intentMap)
+  }
 
+  // const items: { [key: string]: number } = ongoing_order.items
+  // const prices: { [key: string]: number } = ongoing_order.item_total_price
 
+  // console.log("Receipt:");
+  // console.log("------------------------01");
+  // let result = '';
+  // Iterate over items
+  // for (const itemName in items) {
+  //   if (items.hasOwnProperty(itemName)) {
+  //     const quantity = items[itemName];
+  //     const itemPrice = prices[itemName];
+  //     const totalPrice = quantity * itemPrice;
+  //     result = `Item total price   : $${totalPrice}`
+  //     console.log(`${itemName} x${quantity}: $${totalPrice}`);
+  //     console.log("------------------------02");
 
-
+  //   }
+  // }
 
 
 

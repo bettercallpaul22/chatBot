@@ -26,5 +26,4 @@ const item_prices = {
   const itemTotalPrices = calculateItemTotalPrice(order_item, item_prices);
   
   // Log the result
-  console.log("Total Price for Each Item:", itemTotalPrices);
   
