@@ -46,13 +46,14 @@ app.listen(PORT, ()=>console.log('listening on port 5000'))
 app.get('/', (req, res)=>{
     res.status(200).json("node bot")
 })
-app.post('/post', (req, res)=>{
+app.post('/post', async(req, res)=>{
+    const data = await fs.readFile('./filename.json', 'utf8');
     // const localstorage = new LocalStorage('./')
-    const jsonData = { name: 'obaro paul' };
+    // const jsonData = { name: 'user name' };
     // localstorage.setItem('name', JSON.stringify(jsonData))
     // const v = localstorage.getItem('name')
-    const filePath = './filename.json';
-    pushJsonToFile(jsonData, filePath);
-    res.send(jsonData) 
+    // const filePath = './filename.json';
+    // pushJsonToFile(jsonData, filePath);
+    res.send(data) 
 
 })
