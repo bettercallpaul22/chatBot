@@ -26,9 +26,14 @@ app.get('/', (req, res)=>{
     res.status(200).json("welcom skillGuardian hhdhd")
 })
 app.post('/post', (req, res)=>{
-let localStorage = new LocalStorage('./scratch');
-
-    localStorage.setItem("name", "obaro")
-  const value =  localStorage.getItem("name")
-    res.status(200).json( value)
+    try {
+        
+        let localStorage = new LocalStorage('./scratch');
+        
+            localStorage.setItem("name", "obaro")
+          const value =  localStorage.getItem("name")
+            res.status(200).json( value)
+    } catch (error) {
+        res.status(500).json(error.message)
+    }
 })
