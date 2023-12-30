@@ -3,7 +3,6 @@ import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import { LocalStorage } from 'node-localstorage'
 
-const localStorage = new LocalStorage('./scratch');
 dotenv.config()
 
 const PORT = process.env.PORT || 5000
@@ -24,9 +23,11 @@ app.listen(PORT, ()=>console.log('listening on port 5000'))
 
 
 app.get('/', (req, res)=>{
-    res.status(200).json("welcom skillGuardian homepage")
+    res.status(200).json("welcom skillGuardian hhdhd")
 })
 app.post('/post', (req, res)=>{
+let localStorage = new LocalStorage('./scratch');
+
     localStorage.setItem("name", "obaro")
   const value =  localStorage.getItem("name")
     res.status(200).json( value)
