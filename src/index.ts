@@ -3,7 +3,7 @@ import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
 import * as fs from 'fs-extra';
 import { promisify } from 'util';
-
+import { LocalStorage } from 'node-localstorage';
 const writeFileAsync = promisify(fs.writeFile);
 
 async function pushJsonToFile(jsonData: any, filePath: string): Promise<void> {
@@ -47,9 +47,12 @@ app.get('/', (req, res)=>{
     res.status(200).json("node bot")
 })
 app.post('/post', (req, res)=>{
+    const localstorage = new LocalStorage('./storage')
+    localstorage.setItem('name', 'name')
+    const v = localstorage.getItem('name')
     const jsonData = { name: 'obaro paul' };
     const filePath = './storage/filename.json';
     pushJsonToFile(jsonData, filePath);
-    res.send(jsonData)
+    res.send(v) 
 
 })
