@@ -1,10 +1,31 @@
 import express, { NextFunction, Request, Response } from 'express'
 import bodyParser from 'body-parser'
 import dotenv from 'dotenv'
-import { LocalStorage } from 'node-localstorage'
+import * as fs from 'fs-extra';
+import { promisify } from 'util';
+
+const writeFileAsync = promisify(fs.writeFile);
+
+async function pushJsonToFile(jsonData: any, filePath: string): Promise<void> {
+    try {
+      // Convert the JSON data to a string
+      const jsonString = JSON.stringify(jsonData, null, 2);
+  
+      // Write the JSON string to the specified file
+      await writeFileAsync(filePath, jsonString, 'utf-8');
+  
+      console.log(`JSON data has been pushed to ${filePath}`);
+    } catch (error) {
+      console.error('Error pushing JSON data to file:', error.message);
+    }
+  }
+
+
+
+
 
 dotenv.config()
-
+const directoryPath = './storage';
 const PORT = process.env.PORT || 5000
 const app = express()
 app.use(express.json({limit: 2000000}));
@@ -26,14 +47,9 @@ app.get('/', (req, res)=>{
     res.status(200).json("node bot")
 })
 app.post('/post', (req, res)=>{
-    try {
-        
-        let localStorage = new LocalStorage('./scratch');
-        
-            localStorage.setItem("name", "obaro")
-          const value =  localStorage.getItem("name")
-            res.status(200).json( value)
-    } catch (error) {
-        res.status(500).json(error.message)
-    }
+    const jsonData = { name: 'obaro paul' };
+    const filePath = './storage/filename.json';
+    pushJsonToFile(jsonData, filePath);
+    res.send(jsonData)
+
 })
