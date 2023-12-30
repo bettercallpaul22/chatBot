@@ -47,12 +47,12 @@ app.get('/', (req, res)=>{
     res.status(200).json("node bot")
 })
 app.post('/post', (req, res)=>{
-    const localstorage = new LocalStorage('./storage')
-    localstorage.setItem('name', 'name')
-    const v = localstorage.getItem('name')
+    // const localstorage = new LocalStorage('./')
     const jsonData = { name: 'obaro paul' };
-    const filePath = './storage/filename.json';
+    // localstorage.setItem('name', JSON.stringify(jsonData))
+    // const v = localstorage.getItem('name')
+    const filePath = './filename.json';
     pushJsonToFile(jsonData, filePath);
-    res.send(v) 
+    res.send(jsonData) 
 
 })
