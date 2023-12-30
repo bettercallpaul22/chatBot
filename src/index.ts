@@ -31,4 +31,4 @@ mongoose.connect(DATABASE_URL_MONGO)
 app.get('/', (req, res)=>{
     res.status(200).json("WELCOM TO CHATBOT SERVICE APP")
 })
-app.post('/fulfillment', webhook)
+app.post('/fulfillment', (webhook))
