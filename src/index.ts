@@ -23,7 +23,7 @@ app.listen(PORT, ()=>console.log('listening on port 5000'))
 
 
 app.get('/', (req, res)=>{
-    res.status(200).json("welcom skillGuardian hhdhd")
+    res.status(200).json("node bot")
 })
 app.post('/post', (req, res)=>{
     try {
