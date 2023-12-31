@@ -34,7 +34,7 @@ export const send_order = async (req: Request, res: Response) => {
                     "title": `Order Completed`,
                     "text": [
                       `Your order is on transit`,
-                      `Order ID ${order._id}`
+                      `Order ID ${new_order._id}`
                     ]
                   },
                   {

@@ -6,6 +6,6 @@ const OngoingOrderModelSchema = new mongoose.Schema({
     total: Number,
 })
 
-const OngoingOrderModel = mongoose.model("Order", OngoingOrderModelSchema);
+const OngoingOrderModel = mongoose.model("OngoingOrder", OngoingOrderModelSchema);
 
 export default OngoingOrderModel;
