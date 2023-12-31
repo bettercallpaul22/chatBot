@@ -36,19 +36,26 @@ export const add_order = async (req: Request, res: Response) => {
       })
       await order.save()
 
-      const custom_payload = (agent: any, ) => {
+      const custom_payload = (agent: any,) => {
         const payload_data = {
-    
+
           "richContent": [
             [
               {
                 "type": "description",
                 "title": `Order Update`,
-                "text":[
-                   `${quantity_to_add} ${item_to_add} has been added to your order`,
-                  ]
-                 
-                
+                "text": [
+                  `${quantity_to_add} ${item_to_add} has been added to your order`,
+                  'Anything else?'
+                ]
+              },
+              {
+                "type": "chips",
+                "options": [
+                  {
+                    "text": "No thanks that's all"
+                  }
+                ]
               }
             ]
           ]
@@ -62,6 +69,7 @@ export const add_order = async (req: Request, res: Response) => {
 
       await OngoingOrderModel.findByIdAndDelete({ _id: ongoing_order._id })
     } else {
+      // add new item to order list
       ongoing_order.items = { ...ongoing_order.items, [item_to_add]: quantity_to_add }
       const get_item_prices = calculateItemTotalPrice(ongoing_order.items, item_prices)
       const get_total_amount = calculateTotalAmount(get_item_prices)
@@ -76,19 +84,26 @@ export const add_order = async (req: Request, res: Response) => {
       })
       await order.save()
 
-      const custom_payload = (agent: any, ) => {
+      const custom_payload = (agent: any,) => {
         const payload_data = {
-    
+
           "richContent": [
             [
               {
                 "type": "description",
                 "title": `Order Update`,
-                "text":[
-                   `${quantity_to_add} ${item_to_add} has been removed to your order`,
-                  ]
-                 
-                
+                "text": [
+                  `${quantity_to_add} ${item_to_add} has been added to your order`,
+                  'Anything else?'
+                ]
+              },
+              {
+                "type": "chips",
+                "options": [
+                  {
+                    "text": "No thanks that's all"
+                  }
+                ]
               }
             ]
           ]
@@ -102,6 +117,8 @@ export const add_order = async (req: Request, res: Response) => {
       await OngoingOrderModel.findByIdAndDelete({ _id: ongoing_order._id })
     }
   } else {
+
+    // create new order
     const get_item_prices = calculateItemTotalPrice(matchedObject, item_prices)
     const get_total_amount = calculateTotalAmount(get_item_prices)
     const new_ongoing_order = new OngoingOrderModel({
@@ -111,31 +128,39 @@ export const add_order = async (req: Request, res: Response) => {
       total: get_total_amount
     })
     await new_ongoing_order.save()
-  
 
-  const custom_payload = (agent: any, ) => {
-    const payload_data = {
 
-      "richContent": [
-        [
-          {
-            "type": "description",
-            "title": `Receipt`,
-            "text":[
-               `$Order total price : ${new_ongoing_order.total}`,
-               ` Order Id :${new_ongoing_order._id}`
+    const custom_payload = (agent: any,) => 
+    
+    {
+      const payload_data = {
+
+        "richContent": [
+          [
+            {
+              "type": "description",
+              "title": `Order Created`,
+              "text": [
+                `${quantity_to_add} ${item_to_add} has been added to your order`,
+                'Anything else?'
               ]
-             
-            
-          }
+            },
+            {
+              "type": "chips",
+              "options": [
+                {
+                  "text": "No thanks that's all"
+                }
+              ]
+            }
+          ]
         ]
-      ]
+      }
+      agent.add(new diff.Payload(agent.UNSPECIFIED, payload_data, { sendAsMessage: true, rawPayload: true }));
     }
-    agent.add(new diff.Payload(agent.UNSPECIFIED, payload_data, { sendAsMessage: true, rawPayload: true }));
-  }
-  let intentMap = new Map();
-  intentMap.set('add_order', custom_payload)
-  agent.handleRequest(intentMap)
+    let intentMap = new Map();
+    intentMap.set('add_order', custom_payload)
+    agent.handleRequest(intentMap)
   }
 
   // const items: { [key: string]: number } = ongoing_order.items
